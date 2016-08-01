@@ -2,7 +2,7 @@
 import rospy as rsp
 from sensor_msgs.msg import Image
 from std_msgs.msg import *
-from student.msg import blob_detect
+from bwsi_race.msg import blob_detect
 from geometry_msgs.msg import Point
 from cv_bridge import CvBridge, CvBridgeError
 import cv2
@@ -23,7 +23,7 @@ class ZedCamPub:
 
 		rsp.init_node("zed_pub")
 		
-		def detect_img(self, img):
+	def detect_img(self, img):
 		img_data = self.bridge.imgmsg_to_cv2(img)
 
 		processed_img_cv2 = self.process_img(img_data)
