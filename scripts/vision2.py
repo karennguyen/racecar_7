@@ -100,12 +100,10 @@ class ZedCamPub:
 				#location
 				height = np.size(img, 0)
 				width = np.size(img, 1)
-								
-				location = float(cx)/float(width) # x location ratio
-					
+							
 				blobD.header = self.header
 				blobD.height = Float64(float(blobSize))
-				blobD.location = location	
+				blobD.location =  float(cx)/float(width)	
 
 				self.loc_size_pub.publish(blobD)
 			
