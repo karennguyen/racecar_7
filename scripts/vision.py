@@ -5,7 +5,6 @@ from std_msgs.msg import *
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point
 from cv_bridge import CvBridge, CvBridgeError
-from bwsi_race.msg import img_info
 import cv2
 import numpy as np
 import math
@@ -13,46 +12,45 @@ import math
 class BlobDetection:
 
 	def __init__(self):
-	    	print ("init")
-		self.bridge = CvBridge() #allows us to convert our image to cv2
+    print ("init")
+	self.bridge = CvBridge() #allows us to convert our image to cv2
 
-		self.zed_pub = rsp.Publisher("/image_echo", Image, queue_size = 1)
-		self.imginfo_pub = rsp.Publisher("/exploring_challenge", img_info, queue_size = 1)
+	self.zed_pub = rsp.Publisher("/image_echo", Image, queue_size = 1)
+	self.imginfo_pub = rsp.Publisher("/exploring_challenge", img_info, queue_size = 1)
 	
-		self.zed_img = rsp.Subscriber("/camera/rgb/image_rect_color", Image, self.detect_img) #subscribes to the ZED camera image
-	    	self.odom_sub = rsp.Subscriber("/vesc/odom", Odometry, self.odom_callback)
-		
-		self.last_arb_position = Point()
-		self.gone_far_enough = True
-		
-		self.header = std_mgs.msg.Header()
-		self.heightThresh = 100 #unit pixels MUST TWEAK
-		self.odomThresh = 1 #unit meters
-		rsp.init_node("vision_node")
+	self.zed_img = rsp.Subscriber("/camera/rgb/image_rect_color", Image, self.detect_img) #subscribes to the ZED camera image
+    	self.odom_sub = rsp.Subscriber("/vesc/odom", Odometry, self.odom_callback)
+        
+	self.last_arb_position = Point()
+	self.gone_far_enough = True
+        
+	self.header = std_mgs.msg.Header()
+	self.heightThresh = 100 #unit pixels MUST TWEAK
+	self.odomThresh = 1 #unit meters
+	rsp.init_node("vision_node")
     
-  	def odom_callback(self, odom): #odom callback
-		dist = math.sqrt((self.last_arb_position.x - odom.pose.pose.position.x)**2 + (self.last_arb_position.y -odom.pose.pose.position.y)**2)                               
-	  	if(dist > 1):#if moved a meter since last
-			self.gone_far_enough = True               
-			self.last_arb_position.x = odom.pose.pose.position.x
-			self.last_arb_position.y = odom.pose.pose.position.y
-	      	else:
-			self.gone_far_enough = False
-
-    	def detect_img(self, img): #image callback
-		if(not self.gone_far_enough):
-			return
-		blob_msg = img_info()
-		blob_msg.header = self.header
+  def odom_callback(self, odom): #odom callback
+  	dist = math.sqrt((self.last_arb_position.x - odom.pose.pose.position.x)**2 + (self.last_arb_position.y - odom.pose.pose.position.y)**2)                               
+  	if(dist > 1):#if moved a meter since last
+        	self.gone_far_enough = True               
+        	self.last_arb_position.x = odom.pose.pose.position.x
+        	self.last_arb_position.y = odom.pose.pose.position.y
+      	else:
+        	self.gone_far_enough = False
+    def detect_img(self, img): #image callback
+    if(not self.gone_far_enough):
+      return
+    blob_msg = img_info()
+    blob_msg.header = self.header
 
 		img_data = self.bridge.imgmsg_to_cv2(img) #changing image to cv2
 
 		processed_img_cv2 = self.process_img(img_data) #passing image to process_img function
-		processed_img = self.bridge.cv2_to_imgmsg(processed_img_cv2, "bgr8") #convert image back to regular format (.png?)
-		cv2.imwrite("/home/racecar/challenge_photos/%i.png" % rsp.get_time(), processed_img_cv2)
-		blob_msg.img_file = processed_img
-
-		self.imginfo_pub.publish(blob_msg)
+    processed_img = self.bridge.cv2_to_imgmsg(processed_img_cv2, "bgr8") #convert image back to regular format (.png?)
+    cv2.imwrite("/home/racecar/challenge_photos/%i.png" % rsp.get_time(), processed_img_cv2)
+    blob_msg.img_file = processed_img
+        
+    self.imginfo_pub.publish(blob_msg)
 		self.zed_pub.publish(processed_img)
 
 	def process_img(self, img):
@@ -74,14 +72,14 @@ class BlobDetection:
 		contours_green, hierarchy_green = cv2.findContours(maskGreen, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
 		#RED
-		hue_red_min = 200
-		hue_red_max = 250
+		hue_red_min = 0
+		hue_red_max = 30
 
-		sat_red_min = .85
+		sat_red_min = .666
 		sat_red_max = 1
 
-		val_red_min = .2
-		val_red_max = .9
+		val_red_min = .79
+		val_red_max = 1
 		
 		red_bounds = np.array([hue_red_min / 2, int(sat_red_min * 255), int(val_red_min * 255)]), np.array([hue_red_max / 2, int(sat_red_max * 255), int(val_red_max * 255)])
 		#red_bounds = np.array([0,190,200]), np.array([15, 255, 255])
