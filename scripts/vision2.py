@@ -15,7 +15,7 @@ class ZedCamPub:
 		self.bridge = CvBridge()
 
 		self.zed_pub = rsp.Publisher("image_echo", Image, queue_size=10)
-		self.loc_size_pub = rsp.Publisher("blob_info", blob_detect, queue_size=10)
+		self.loc_height_pub = rsp.Publisher("blob_info", blob_detect, queue_size=10)
 		
 		self.zed_img = rsp.Subscriber("/camera/rgb/image_rect_color", Image, self.detect_img)
 		
@@ -97,16 +97,14 @@ class ZedCamPub:
 				#green rect	
 				x, y, w, h = cv2.boundingRect(officCont)	
 				cv2.rectangle(img, (x,y), (x+w, y+h), (100, 50, 50), 2)
-				#size
-				blobSize = w*h
 				#location
 				height = np.size(img, 0)
 				width = np.size(img, 1)
 								
-				location = cx # x location
+				location = float(cx)/float(width) # x location ratio
 					
 				blobD.header = self.header
-				blobD.size = Float64(float(blobSize))
+				blobD.height = Float64(float(blobSize))
 				blobD.location = location	
 
 				self.loc_size_pub.publish(blobD)
