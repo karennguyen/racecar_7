@@ -50,6 +50,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
     FILES
     img_info.msg
+    blob_detect.msg
 #   Message1.msg
 #   Message2.msg
 )
