@@ -27,6 +27,7 @@ class BlobDetection:
 		self.header = std_msgs.msg.Header()
 		self.heightThresh = 100 #unit pixels MUST TWEAK
 		self.odomThresh = 1 #unit meters
+		self.blob_msg = img_info()
 		rsp.init_node("vision_node")
     
 	def odom_callback(self, odom): #odom callback
@@ -41,17 +42,16 @@ class BlobDetection:
 	def detect_img(self, img): #image callback
 		if(not self.gone_far_enough):
 			return
-		blob_msg = img_info()
-		blob_msg.header = self.header
+		self.blob_msg.header = self.header
 
 		img_data = self.bridge.imgmsg_to_cv2(img) #changing image to cv2
 
 		processed_img_cv2 = self.process_img(img_data) #passing image to process_img function
 		processed_img = self.bridge.cv2_to_imgmsg(processed_img_cv2, "bgr8") #convert image back to regular format (.png?)
 		cv2.imwrite("/home/racecar/challenge_photos/%i.png" % rsp.get_time(), processed_img_cv2)
-		blob_msg.img_file = processed_img
+		self.blob_msg.img_file = processed_img
 
-		self.imginfo_pub.publish(blob_msg)
+		self.imginfo_pub.publish(self.blob_msg)
 		self.zed_pub.publish(processed_img)
 
 	def process_img(self, img):
@@ -131,8 +131,8 @@ class BlobDetection:
 
 				  	if  h > self.heightThresh: #comparing height of contour to height threshold param
 						print (string_list[i] , "found")
-				    		blob_msg.color = string_list[i] #setting the color field in the custom message type blob_msg
-				    		blob_msg.shape = "other" # change??
+				    		self.blob_msg.color = string_list[i] #setting the color field in the custom message type blob_msg
+				    		self.blob_msg.shape = "other" # change??
 				    		cv2.drawContours(img, cont, -1, (255, 255, 255), 10) 
 		
 						if M['m00'] != 0:
