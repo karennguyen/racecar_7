@@ -27,6 +27,7 @@ class BlobDetection:
 		self.header = std_msgs.msg.Header()
 		self.heightThresh = 100 #unit pixels MUST TWEAK
 		self.odomThresh = 1 #unit meters
+		self.blob_msg = img_info()
 		rsp.init_node("vision_node")
     
 	def odom_callback(self, odom): #odom callback
@@ -41,30 +42,29 @@ class BlobDetection:
 	def detect_img(self, img): #image callback
 		if(not self.gone_far_enough):
 			return
-		blob_msg = img_info()
-		blob_msg.header = self.header
+		self.blob_msg.header = self.header
 
 		img_data = self.bridge.imgmsg_to_cv2(img) #changing image to cv2
 
 		processed_img_cv2 = self.process_img(img_data) #passing image to process_img function
 		processed_img = self.bridge.cv2_to_imgmsg(processed_img_cv2, "bgr8") #convert image back to regular format (.png?)
 		cv2.imwrite("/home/racecar/challenge_photos/%i.png" % rsp.get_time(), processed_img_cv2)
-		blob_msg.img_file = processed_img
+		self.blob_msg.img_file = processed_img
 
-		self.imginfo_pub.publish(blob_msg)
+		self.imginfo_pub.publish(self.blob_msg)
 		self.zed_pub.publish(processed_img)
 
 	def process_img(self, img):
 		hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV) #converting to HSV
 		
 		#GREEN
-		hue_green_min = 60
-		hue_green_max = 150
+		hue_green_min = 100
+		hue_green_max = 154
 
-		sat_green_min = .5
+		sat_green_min = .4
 		sat_green_max = 1
 
-		val_green_min = 0
+		val_green_min = .4
 		val_green_max = 1
 
 		green_bounds = np.array([hue_green_min / 2, int(sat_green_min * 255), int(val_green_min * 255)]), np.array([hue_green_max / 2, int(sat_green_max * 255), int(val_green_max * 255)])
@@ -88,13 +88,13 @@ class BlobDetection:
 		contours_red, hierarchy_red = cv2.findContours(maskRed, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 		
 		#YELLOW
-		hue_yellow_min = 0
-		hue_yellow_max = 360
+		hue_yellow_min = 50
+		hue_yellow_max = 130
 
-		sat_yellow_min = 0.3
+		sat_yellow_min = 0.25
 		sat_yellow_max = 1
 
-		val_yellow_min = .745
+		val_yellow_min = .6666
 		val_yellow_max = 1
                                        
 		yellow_bounds = np.array([hue_yellow_min / 2, int(sat_yellow_min * 255), int(val_yellow_min * 255)]), np.array([hue_yellow_max / 2, int(sat_yellow_max * 255), int(val_yellow_max * 255)])
@@ -103,14 +103,14 @@ class BlobDetection:
 		contours_yellow, hierarchy_yellow = cv2.findContours(maskYellow, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         
         	#BLUE
-		hue_blue_min = 0
-		hue_blue_max = 30
+		hue_blue_min = 200
+		hue_blue_max = 240
 
-		sat_blue_min = 0.4
-		sat_blue_max = 1
+		sat_blue_min = 0.58
+		sat_blue_max = .75
 
-		val_blue_min = 0
-		val_blue_max = .5
+		val_blue_min = .275
+		val_blue_max = .43
                                        
 		blue_bounds = np.array([hue_blue_min / 2, int(sat_blue_min * 255), int(val_blue_min * 255)]), np.array([hue_blue_max / 2, int(sat_blue_max * 255), int(val_blue_max * 255)])
 		
@@ -127,22 +127,22 @@ class BlobDetection:
 					cont = contArea[0][1]
 				  	M = cv2.moments(cont)
 		                  			
-		          	x, y, w, h = cv2.boundingRect(cont)
+		          		x, y, w, h = cv2.boundingRect(cont)
 
-		          	if  h > self.heightThresh: #comparing height of contour to height threshold param
-					print (string_list[i] , "found")
-		            		blob_msg.color = string_list[i] #setting the color field in the custom message type blob_msg
-		            		blob_msg.shape = "other" # change??
-		            		cv2.drawContours(img, cont, -1, (255, 255, 255), 10) 
+				  	if  h > self.heightThresh: #comparing height of contour to height threshold param
+						print (string_list[i] , "found")
+				    		self.blob_msg.color = string_list[i] #setting the color field in the custom message type blob_msg
+				    		self.blob_msg.shape = "other" # change??
+				    		cv2.drawContours(img, cont, -1, (255, 255, 255), 10) 
 		
-			        	if M['m00'] != 0:
-			                	cx = int(M['m10']/M['m00'])
-			              		cy = int(M['m01']/M['m00'])
-			              		center = (cx, cy)
-			              		cv2.circle(img, center, 5, (60, 0, 0), -1)
-			              		cv2.rectangle(img, (x, y), (x + w, y + h), (100, 50, 50), 2)
-			              		font = cv2.FONT_HERSHEY_SIMPLEX
-			              		cv2.putText(img, string_list[i], center, font, 1,(0,0,0) , 4)
+						if M['m00'] != 0:
+					        	cx = int(M['m10']/M['m00'])
+					      		cy = int(M['m01']/M['m00'])
+					      		center = (cx, cy)
+					      		cv2.circle(img, center, 5, (60, 0, 0), -1)
+					      		cv2.rectangle(img, (x, y), (x + w, y + h), (100, 50, 50), 2)
+					      		font = cv2.FONT_HERSHEY_SIMPLEX
+					      		cv2.putText(img, string_list[i], center, font, 1,(0,0,0) , 4)
 		                
 		except Exception, e:
 			print str(e)
