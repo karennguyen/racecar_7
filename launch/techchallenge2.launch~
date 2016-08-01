@@ -1,4 +1,0 @@
-<launch>
-	<node name="wall_follow_node" pkg="bwsi_race" args="0.7 0.6" type="wall_follower.py" output="screen"/>
-	<include file="$(find racecar)/launch/teleop.launch"/>
-</launch>
