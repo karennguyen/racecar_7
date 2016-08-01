@@ -12,48 +12,49 @@ import math
 class BlobDetection:
 
 	def __init__(self):
-    print ("init")
-	self.bridge = CvBridge() #allows us to convert our image to cv2
+		print ("init")
+		self.bridge = CvBridge() #allows us to convert our image to cv2
 
-	self.zed_pub = rsp.Publisher("/image_echo", Image, queue_size = 1)
-	self.imginfo_pub = rsp.Publisher("/exploring_challenge", img_info, queue_size = 1)
-	
-	self.zed_img = rsp.Subscriber("/camera/rgb/image_rect_color", Image, self.detect_img) #subscribes to the ZED camera image
-    	self.odom_sub = rsp.Subscriber("/vesc/odom", Odometry, self.odom_callback)
-        
-	self.last_arb_position = Point()
-	self.gone_far_enough = True
-        
-	self.header = std_mgs.msg.Header()
-	self.heightThresh = 100 #unit pixels MUST TWEAK
-	self.odomThresh = 1 #unit meters
-	rsp.init_node("vision_node")
+		self.zed_pub = rsp.Publisher("/image_echo", Image, queue_size = 1)
+		self.imginfo_pub = rsp.Publisher("/exploring_challenge", img_info, queue_size = 1)
+
+		self.zed_img = rsp.Subscriber("/camera/rgb/image_rect_color", Image, self.detect_img) #subscribes to the ZED camera image
+		self.odom_sub = rsp.Subscriber("/vesc/odom", Odometry, self.odom_callback)
+
+		self.last_arb_position = Point()
+		self.gone_far_enough = True
+
+		self.header = std_mgs.msg.Header()
+		self.heightThresh = 100 #unit pixels MUST TWEAK
+		self.odomThresh = 1 #unit meters
+		rsp.init_node("vision_node")
     
-  def odom_callback(self, odom): #odom callback
-  	dist = math.sqrt((self.last_arb_position.x - odom.pose.pose.position.x)**2 + (self.last_arb_position.y - odom.pose.pose.position.y)**2)                               
-  	if(dist > 1):#if moved a meter since last
-        	self.gone_far_enough = True               
-        	self.last_arb_position.x = odom.pose.pose.position.x
-        	self.last_arb_position.y = odom.pose.pose.position.y
-      	else:
-        	self.gone_far_enough = False
-    def detect_img(self, img): #image callback
-    if(not self.gone_far_enough):
-      return
-    blob_msg = img_info()
-    blob_msg.header = self.header
+	def odom_callback(self, odom): #odom callback
+		dist = math.sqrt((self.last_arb_position.x - odom.pose.pose.position.x)**2 + (self.last_arb_position.y - odom.pose.pose.position.y)**2)                               
+		if(dist > 1):#if moved a meter since last
+			self.gone_far_enough = True               
+			self.last_arb_position.x = odom.pose.pose.position.x
+			self.last_arb_position.y = odom.pose.pose.position.y
+      		else:
+        		self.gone_far_enough = False
+
+	def detect_img(self, img): #image callback
+		if(not self.gone_far_enough):
+			return
+		blob_msg = img_info()
+		blob_msg.header = self.header
 
 		img_data = self.bridge.imgmsg_to_cv2(img) #changing image to cv2
 
 		processed_img_cv2 = self.process_img(img_data) #passing image to process_img function
-    processed_img = self.bridge.cv2_to_imgmsg(processed_img_cv2, "bgr8") #convert image back to regular format (.png?)
-    cv2.imwrite("/home/racecar/challenge_photos/%i.png" % rsp.get_time(), processed_img_cv2)
-    blob_msg.img_file = processed_img
-        
-    self.imginfo_pub.publish(blob_msg)
+		processed_img = self.bridge.cv2_to_imgmsg(processed_img_cv2, "bgr8") #convert image back to regular format (.png?)
+		cv2.imwrite("/home/racecar/challenge_photos/%i.png" % rsp.get_time(), processed_img_cv2)
+		blob_msg.img_file = processed_img
+
+		self.imginfo_pub.publish(blob_msg)
 		self.zed_pub.publish(processed_img)
 
-	def process_img(self, img):
+		def process_img(self, img):
 		hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV) #converting to HSV
 		
 		#GREEN
@@ -121,12 +122,13 @@ class BlobDetection:
 		try:
 			for i in range(len(contour_list)):
 		        	if len(contour_list[i]) != 0:
-		          	contArea = [(cv2.contourArea(c), (c) ) for c in contour_list[i]]
-		          	contArea = sorted(contArea, reverse = True, key = lambda x: x[0])
-				cont = contArea[0][1]
-		          	M = cv2.moments(cont)
+				  	contArea = [(cv2.contourArea(c), (c) ) for c in contour_list[i]]
+				  	contArea = sorted(contArea, reverse = True, key = lambda x: x[0])
+					cont = contArea[0][1]
+				  	M = cv2.moments(cont)
 		                  			
 		          	x, y, w, h = cv2.boundingRect(cont)
+
 		          	if  h > self.heightThresh: #comparing height of contour to height threshold param
 					print (string_list[i] , "found")
 		            		blob_msg.color = string_list[i] #setting the color field in the custom message type blob_msg
