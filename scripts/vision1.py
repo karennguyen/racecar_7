@@ -58,13 +58,13 @@ class BlobDetection:
 		hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV) #converting to HSV
 		
 		#GREEN
-		hue_green_min = 60
-		hue_green_max = 150
+		hue_green_min = 100
+		hue_green_max = 154
 
-		sat_green_min = .5
+		sat_green_min = .4
 		sat_green_max = 1
 
-		val_green_min = 0
+		val_green_min = .4
 		val_green_max = 1
 
 		green_bounds = np.array([hue_green_min / 2, int(sat_green_min * 255), int(val_green_min * 255)]), np.array([hue_green_max / 2, int(sat_green_max * 255), int(val_green_max * 255)])
@@ -88,13 +88,13 @@ class BlobDetection:
 		contours_red, hierarchy_red = cv2.findContours(maskRed, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 		
 		#YELLOW
-		hue_yellow_min = 0
-		hue_yellow_max = 360
+		hue_yellow_min = 50
+		hue_yellow_max = 130
 
-		sat_yellow_min = 0.3
+		sat_yellow_min = 0.25
 		sat_yellow_max = 1
 
-		val_yellow_min = .745
+		val_yellow_min = .6666
 		val_yellow_max = 1
                                        
 		yellow_bounds = np.array([hue_yellow_min / 2, int(sat_yellow_min * 255), int(val_yellow_min * 255)]), np.array([hue_yellow_max / 2, int(sat_yellow_max * 255), int(val_yellow_max * 255)])
@@ -103,14 +103,14 @@ class BlobDetection:
 		contours_yellow, hierarchy_yellow = cv2.findContours(maskYellow, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         
         	#BLUE
-		hue_blue_min = 0
-		hue_blue_max = 30
+		hue_blue_min = 200
+		hue_blue_max = 240
 
-		sat_blue_min = 0.4
-		sat_blue_max = 1
+		sat_blue_min = 0.58
+		sat_blue_max = .75
 
-		val_blue_min = 0
-		val_blue_max = .5
+		val_blue_min = .275
+		val_blue_max = .43
                                        
 		blue_bounds = np.array([hue_blue_min / 2, int(sat_blue_min * 255), int(val_blue_min * 255)]), np.array([hue_blue_max / 2, int(sat_blue_max * 255), int(val_blue_max * 255)])
 		
