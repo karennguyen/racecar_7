@@ -127,22 +127,22 @@ class BlobDetection:
 					cont = contArea[0][1]
 				  	M = cv2.moments(cont)
 		                  			
-		          	x, y, w, h = cv2.boundingRect(cont)
+		          		x, y, w, h = cv2.boundingRect(cont)
 
-		          	if  h > self.heightThresh: #comparing height of contour to height threshold param
-					print (string_list[i] , "found")
-		            		blob_msg.color = string_list[i] #setting the color field in the custom message type blob_msg
-		            		blob_msg.shape = "other" # change??
-		            		cv2.drawContours(img, cont, -1, (255, 255, 255), 10) 
+				  	if  h > self.heightThresh: #comparing height of contour to height threshold param
+						print (string_list[i] , "found")
+				    		blob_msg.color = string_list[i] #setting the color field in the custom message type blob_msg
+				    		blob_msg.shape = "other" # change??
+				    		cv2.drawContours(img, cont, -1, (255, 255, 255), 10) 
 		
-			        	if M['m00'] != 0:
-			                	cx = int(M['m10']/M['m00'])
-			              		cy = int(M['m01']/M['m00'])
-			              		center = (cx, cy)
-			              		cv2.circle(img, center, 5, (60, 0, 0), -1)
-			              		cv2.rectangle(img, (x, y), (x + w, y + h), (100, 50, 50), 2)
-			              		font = cv2.FONT_HERSHEY_SIMPLEX
-			              		cv2.putText(img, string_list[i], center, font, 1,(0,0,0) , 4)
+						if M['m00'] != 0:
+					        	cx = int(M['m10']/M['m00'])
+					      		cy = int(M['m01']/M['m00'])
+					      		center = (cx, cy)
+					      		cv2.circle(img, center, 5, (60, 0, 0), -1)
+					      		cv2.rectangle(img, (x, y), (x + w, y + h), (100, 50, 50), 2)
+					      		font = cv2.FONT_HERSHEY_SIMPLEX
+					      		cv2.putText(img, string_list[i], center, font, 1,(0,0,0) , 4)
 		                
 		except Exception, e:
 			print str(e)
