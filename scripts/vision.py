@@ -5,6 +5,7 @@ from std_msgs.msg import *
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point
 from cv_bridge import CvBridge, CvBridgeError
+from bwsi_race.msg import img_info
 import cv2
 import numpy as np
 import math
@@ -54,7 +55,7 @@ class BlobDetection:
 		self.imginfo_pub.publish(blob_msg)
 		self.zed_pub.publish(processed_img)
 
-		def process_img(self, img):
+	def process_img(self, img):
 		hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV) #converting to HSV
 		
 		#GREEN
@@ -135,14 +136,14 @@ class BlobDetection:
 		            		blob_msg.shape = "other" # change??
 		            		cv2.drawContours(img, cont, -1, (255, 255, 255), 10) 
 		
-				        	if M['m00'] != 0:
-				                	cx = int(M['m10']/M['m00'])
-				              		cy = int(M['m01']/M['m00'])
-				              		center = (cx, cy)
-				              		cv2.circle(img, center, 5, (60, 0, 0), -1)
-				              		cv2.rectangle(img, (x, y), (x + w, y + h), (100, 50, 50), 2)
-				              		font = cv2.FONT_HERSHEY_SIMPLEX
-				              		cv2.putText(img, string_list[i], center, font, 1,(0,0,0) , 4)
+			        	if M['m00'] != 0:
+			                	cx = int(M['m10']/M['m00'])
+			              		cy = int(M['m01']/M['m00'])
+			              		center = (cx, cy)
+			              		cv2.circle(img, center, 5, (60, 0, 0), -1)
+			              		cv2.rectangle(img, (x, y), (x + w, y + h), (100, 50, 50), 2)
+			              		font = cv2.FONT_HERSHEY_SIMPLEX
+			              		cv2.putText(img, string_list[i], center, font, 1,(0,0,0) , 4)
 		                
 		except Exception, e:
 			print str(e)
