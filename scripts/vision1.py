@@ -13,7 +13,6 @@ import math
 class BlobDetection:
 
 	def __init__(self):
-		print ("init")
 		self.bridge = CvBridge() #allows us to convert our image to cv2
 
 		self.zed_pub = rsp.Publisher("/image_echo", Image, queue_size = 1)
@@ -25,7 +24,7 @@ class BlobDetection:
 		self.last_arb_position = Point()
 		self.gone_far_enough = True
 
-		self.header = std_mgs.msg.Header()
+		self.header = std_msgs.msg.Header()
 		self.heightThresh = 100 #unit pixels MUST TWEAK
 		self.odomThresh = 1 #unit meters
 		rsp.init_node("vision_node")
