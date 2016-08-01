@@ -20,7 +20,7 @@ class Explorer():
 		self.pSpeed = 0.3 #tweak
 		self.pAngle = 1
 		#positive charge behind racecar to give it a "kick" (forward vector)
-		self.propelling_charge = 5
+		self.propelling_charge = 2.5
 		#more constants
 		self.charge = 0.005
 	  	self.safety_threshold = 0.3
