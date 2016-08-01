@@ -1,7 +1,7 @@
 <launch>
-	<node name="vision_node" pkg="bwsi_race" args="" type="vision.py" output="screen"/>
+	<node name="vision_node" pkg="bwsi_race" args="" type="vision1.py" output="screen"/>
 	<include file="$(find racecar)/launch/teleop.launch"/>
 	<include file="$(find zed_wrapper)/launch/zed.launch"/>
-	<node name = "explorer_node" pkg = "bwsi_race" args= "" type = "explorer.py" output= "screen"/>
+	<node name = "explorer_node" pkg = "bwsi_race" args= "" type = "explorer1.py" output= "screen"/>
 </launch>
 

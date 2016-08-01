@@ -27,7 +27,7 @@ class BlobDetection:
 		self.header = std_msgs.msg.Header()
 		self.heightThresh = 100 #unit pixels MUST TWEAK
 		self.odomThresh = 1 #unit meters
-		
+		self.blob_msg = img_info()
 
 		rsp.init_node("vision_node")
     
@@ -43,7 +43,6 @@ class BlobDetection:
 	def detect_img(self, img): #image callback
 		if(not self.gone_far_enough):
 			return
-		self.blob_msg = img_info()
 		self.blob_msg.header = self.header
 
 		img_data = self.bridge.imgmsg_to_cv2(img) #changing image to cv2
