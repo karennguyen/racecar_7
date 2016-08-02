@@ -35,7 +35,7 @@ class Follower():
         '''
         Node setup and start
         '''
-        rospy.init_node('final_race_driver', anonymous=False)
+        rospy.init_node('time_trial_driver', anonymous=False)
         self.drive = rospy.Publisher('/vesc/ackermann_cmd_mux/input/navigation', AckermannDriveStamped, queue_size=5)
         rospy.Subscriber('scan', LaserScan, self.laserCall)
         rospy.Subscriber('/color', String, self.blobCall)
