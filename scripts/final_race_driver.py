@@ -13,7 +13,7 @@ MAX_SPEED = 2.0
 
 class Follower():
     
-     '''
+    '''
     *************************************************************************************************
     *                      Constructor and initialization of instance variables                     *
     *************************************************************************************************
@@ -22,7 +22,7 @@ class Follower():
         '''
         Instance variables
         '''
-        #constants for racecar speed and angle calculations
+		#constants for racecar speed and angle calculations
         self.pSpeed = 0.3
         self.pAngle = 1
         #positive charge behind racecar to give it a "kick" (forward vector)
@@ -172,4 +172,4 @@ class Follower():
         self.blob_color = msg
 
 if __name__=="__main__":
-    Follower(True)
+    Follower()
