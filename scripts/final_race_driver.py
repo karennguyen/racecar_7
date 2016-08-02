@@ -97,6 +97,7 @@ class Follower():
         
     '''
     callback for the laser subscriber
+    does the drivin stuffs
     '''
     def laserCall(self,msg):
         
@@ -152,6 +153,7 @@ class Follower():
             return "Wow, you made quite the error dummy"
         
     '''
+    Blob detector callback
     Sets the time and color of the blob detected
     '''
     def blobCall(self, msg):
