@@ -5,7 +5,7 @@ from std_msgs.msg import *
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point
 from cv_bridge import CvBridge, CvBridgeError
-from bwsi_race.msg import img_info
+from racecar_7.msg import img_info
 import cv2
 import numpy as np
 import math
