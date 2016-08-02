@@ -9,9 +9,40 @@ from ackermann_msgs.msg import AckermannDriveStamped # steering messages
 from sensor_msgs.msg import LaserScan # laser scanner msgs
 
 RADIANS_PER_TICK = math.pi / 720
-MAX_SPEED=2.0
+MAX_SPEED = 2.0
 
 class Follower():
+    
+     '''
+    *************************************************************************************************
+    *                      Constructor and initialization of instance variables                     *
+    *************************************************************************************************
+    '''
+    def __init__(self):
+        '''
+        Instance variables
+        '''
+        #constants for racecar speed and angle calculations
+        self.pSpeed = 0.3
+        self.pAngle = 1
+        #positive charge behind racecar to give it a "kick" (forward vector)
+        self.propelling_charge = 4
+        #charge pushing on the car from the laser points
+        self.charge = 0.005
+        
+        '''
+        Node setup and start
+        '''
+        rospy.init_node('final_race_driver', anonymous=False)
+        self.drive = rospy.Publisher('/vesc/ackermann_cmd_mux/input/navigation', AckermannDriveStamped, queue_size=5)
+        rospy.Subscriber('scan', LaserScan, self.laserCall)
+        rospy.Subscriber('/color', String, self.blobCall)
+        
+        '''
+        Leave the robot going until roscore dies, then set speed to 0
+        '''
+        rospy.spin()
+        self.drive.publish(AckermannDriveStamped())
     
     '''
     ******************************************************************************************
@@ -22,18 +53,18 @@ class Follower():
     '''
     Get the error between the car and the wall for wall following
     '''
-    def getError(self,goal,L,begin,end):
-        return (min(L[begin:end]))-goal
+    def getError(self, goal, L, begin, end):
+        return (min(L[begin:end])) - goal
         
     '''
     Get the steering command for the wall follower
     '''
-    def getWallFollowCommand(self,error):
+    def getWallFollowCommand(self, error):
         Kp = .6
         Kd = .7
-        de= error-self.e2
-        self.e2=self.e1
-        self.e1=error
+        de = error-self.e2
+        self.e2 = self.e1
+        self.e1 = error
 
         u=Kp*error+Kd*de
         return u
@@ -73,10 +104,10 @@ class Follower():
         drive_cmd = AckermannDriveStamped()
         
         #get the color of the blob if there is a recent one (or receive a snarky comment)
-        blob=self.recentBlob()
+        blob = self.recentBlob()
         
         #red blob detected, follow right, into the roundabout
-        if blob=="red":
+        if blob == "red":
             
             #chill out around that turn
             speed = 1
@@ -113,7 +144,7 @@ class Follower():
     '''
     def recentBlob(self):
         try:
-            if(rospy.time()-self.lastDetection<1):
+            if(rospy.time() - self.lastDetection < 1):
                 return self.blob_color
             else:
                 return "lol jk fam"
@@ -123,44 +154,9 @@ class Follower():
     '''
     Sets the time and color of the blob detected
     '''
-    def blobCall(self,msg):
-        
+    def blobCall(self, msg):
         self.lastDetection = rospy.get_time()
-        self.blob_color=msg
+        self.blob_color = msg
 
-    
-    
-    '''
-    *************************************************************************************************
-    *                      Constructor and initialization of instance variables                     *
-    *************************************************************************************************
-    '''
-    def __init__(self):
-        '''
-        Instance variables
-        '''
-        #constants for racecar speed and angle calculations
-        self.pSpeed = 0.3
-        self.pAngle = 1
-        #positive charge behind racecar to give it a "kick" (forward vector)
-        self.propelling_charge = 4
-        #charge pushing on the car from the laser points
-        self.charge = 0.005
-        
-        
-        '''
-        Node setup and start
-        '''
-        rospy.init_node('final_race_driver', anonymous=False)
-        self.drive = rospy.Publisher('/vesc/ackermann_cmd_mux/input/navigation', AckermannDriveStamped, queue_size=5)
-        rospy.Subscriber('scan', LaserScan, self.laserCall)
-        rospy.Subscriber('/color',String,self.blobCall)
-        
-        '''
-        Leave the robot going until roscore dies, then set speed to 0
-        '''
-        rospy.spin()
-        self.drive.publish(AckermannDriveStamped())
-        
 if __name__=="__main__":
     Follower(True)
