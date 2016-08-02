@@ -10,6 +10,43 @@ import cv2
 import numpy as np
 import math
 
+def getPolyName(points):
+	p = int(points)
+	if(p<=0):
+		return "No Points"
+	elif(p==1):
+		return "One Point"
+	elif(p==2):
+		return "Line"
+	elif(p==3):
+		return "Triangle"
+	elif(p==4):
+		return "Rectangle"
+	elif(5<=p<=11):
+		return "Polygon"
+	elif(p==12):
+		return "Cross"
+	elif(p>12):
+		return "Circle"
+
+def find_polygon(contour, (cx, cy), img):
+
+	#contour
+	
+	plt.imshow(final)
+
+	#cv2.drawContours(final, [largest_contour], 0, (100,100,100), 5)
+
+	polygon = cv2.approxPolyDP(contour, 0.01*cv2.arcLength(contour, True), True)
+	cv2.polylines(final, np.int32([polygon]), True, (0,0,0),3)#bug in cv2, should have verified dtype
+	cv2.polylines(final, np.int32([polygon]), True, (255,255,255),1)
+	poly_name = getPolyName(len(polygon))
+
+	cv2.putText(img, poly_name, (cx,cy), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0),3)
+	cv2.putText(img, poly_name, (cx,cy), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),1)
+
+	return img
+
 class BlobDetection:
 
 	def __init__(self):
@@ -119,6 +156,7 @@ class BlobDetection:
 	 	maskBlue = cv2.inRange(hsv, blue_bounds[0], blue_bounds[1])
 		contours_blue, hierarchy_blue = cv2.findContours(maskBlue, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     		contour_list = [contours_red, contours_green, contours_yellow, contours_blue]
+		
     		string_list = ["red", "green", "yellow", "blue"]
                              
 		try:
@@ -145,6 +183,8 @@ class BlobDetection:
 					      		cv2.rectangle(img, (x, y), (x + w, y + h), (100, 50, 50), 2)
 					      		font = cv2.FONT_HERSHEY_SIMPLEX
 					      		cv2.putText(img, string_list[i], center, font, 1,(0,0,0) , 4)
+
+							find_polygon(cont, center, img)
 		                
 		except Exception, e:
 			print str(e)
