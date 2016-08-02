@@ -8,8 +8,7 @@ import numpy as np
 from ackermann_msgs.msg import AckermannDriveStamped # steering messages
 from sensor_msgs.msg import LaserScan # laser scanner msgs
 
-
-MAX_SPEED=2.0
+MAX_SPEED = 2.0
 
 class Follower():
     
@@ -45,9 +44,9 @@ class Follower():
         #create the new message
         drive_cmd = AckermannDriveStamped()
         
-        drive_cmd.drive.steering_angle=(540-self.findLargestSpace(msg.ranges, 2)) /200
+        drive_cmd.drive.steering_angle = (540-self.findLargestSpace(msg.ranges, 2)) /200
         
-        drive_cmd.drive.speed=MAX_SPEED
+        drive_cmd.drive.speed = MAX_SPEED
     
         self.drive.publish(drive_cmd) # post this message
       
@@ -62,7 +61,7 @@ class Follower():
         '''
         Node setup and start
         '''
-        rospy.init_node('grand_prix', anonymous=False)
+        rospy.init_node('grand_prix', anonymous = False)
         self.drive = rospy.Publisher('/vesc/ackermann_cmd_mux/input/navigation', AckermannDriveStamped, queue_size=5)
         rospy.Subscriber('scan', LaserScan, self.laserCall)
         
