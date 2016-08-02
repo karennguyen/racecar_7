@@ -28,15 +28,11 @@ def getPolyName(points):
 		return "Cross"
 	elif(p>12):
 		return "Circle"
+	else:
+		return "Unknown Shape"
 
 def find_polygon(contour, (cx, cy), img):
-
-	#contour
 	
-	plt.imshow(final)
-
-	#cv2.drawContours(final, [largest_contour], 0, (100,100,100), 5)
-
 	polygon = cv2.approxPolyDP(contour, 0.01*cv2.arcLength(contour, True), True)
 	cv2.polylines(final, np.int32([polygon]), True, (0,0,0),3)#bug in cv2, should have verified dtype
 	cv2.polylines(final, np.int32([polygon]), True, (255,255,255),1)
@@ -45,7 +41,7 @@ def find_polygon(contour, (cx, cy), img):
 	cv2.putText(img, poly_name, (cx,cy), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0),3)
 	cv2.putText(img, poly_name, (cx,cy), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),1)
 
-	return img
+	return poly_name
 
 class BlobDetection:
 
@@ -172,7 +168,6 @@ class BlobDetection:
 				  	if  h > self.heightThresh: #comparing height of contour to height threshold param
 						print (string_list[i] , "found")
 				    		self.blob_msg.color = string_list[i] #setting the color field in the custom message type blob_msg
-				    		self.blob_msg.shape = "other" # change??
 				    		cv2.drawContours(img, cont, -1, (255, 255, 255), 10) 
 		
 						if M['m00'] != 0:
@@ -184,7 +179,8 @@ class BlobDetection:
 					      		font = cv2.FONT_HERSHEY_SIMPLEX
 					      		cv2.putText(img, string_list[i], center, font, 1,(0,0,0) , 4)
 
-							find_polygon(cont, center, img)
+							blobShape = find_polygon(cont, center, img)
+							self.blob_msg.shape = blobShape
 		                
 		except Exception, e:
 			print str(e)
