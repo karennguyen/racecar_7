@@ -56,8 +56,11 @@ class ColorPub():
      	maskRed = cv2.inRange(hsv, np.array([hue_red_min / 2, int(sat_red_min * 255), int(val_red_min * 255)]), np.array([hue_red_max / 2, int(sat_red_max * 255), int(val_red_max * 255)]))
 
     	contours_red, hierarchy_red = cv2.findContours(maskRed1, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-        if len(contours_green) == 0:
+        blobD.color = "quinoa"
+        
+        if len(contours_green) == 0 and len(contours_red) == 0:
+            pass
+        elif len(contours_green) == 0:
             contRedArea = [ (cv2.contourArea(c), (c) ) for c in contours_red]
             contRedArea = sorted(contRedArea, reverse=True, key=lambda x: x[0])
             officCont = contRedArea[0][1]
@@ -72,12 +75,12 @@ class ColorPub():
             contGreenArea = sorted(contGreenArea, reverse=True, key=lambda x: x[0])
             contRedArea = [ (cv2.contourArea(c), (c) ) for c in contours_red]
             contRedArea = sorted(contRedArea, reverse=True, key=lambda x: x[0])
-        if (max(contGreenArea[0][0], contRedArea[0][0]) == contGreenArea[0][0]):
-            officCont = contGreenArea[0][1]
-            blobD.color = "green"
-        else:
-            officCont = contRedArea[0][1]
-            blobD.color = "red"
+            if (max(contGreenArea[0][0], contRedArea[0][0]) == contGreenArea[0][0]):
+                officCont = contGreenArea[0][1]
+                blobD.color = "green"
+            else:
+                officCont = contRedArea[0][1]
+                blobD.color = "red"
 
         return blobD.color
 
