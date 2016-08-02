@@ -75,8 +75,10 @@ class Follower():
         msg.height   -> float
         msg.location -> float
         '''
+        if(self.wall):
+        	return
 	print ("Height: ", msg.height.data , "Location: " ,msg.location.data)
-        if (msg.height.data > 200 or self.wall):
+        if (msg.height.data > 200):
 	    print ("In box")
             self.switch(msg.color)
             return
