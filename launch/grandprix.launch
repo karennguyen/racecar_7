@@ -1,0 +1,6 @@
+<launch>
+	<node name="color_node" pkg="bwsi_race" args="" type="final_race_vision.py" output="screen"/>
+	<node name = "final_race_driver" pkg = "bwsi_race" args= "" type ="final_race_driver.py" output= "screen"/>
+	<include file="$(find racecar)/launch/teleop.launch"/>
+	<include file="$(find zed_wrapper)/launch/zed.launch"/>
+</launch>
