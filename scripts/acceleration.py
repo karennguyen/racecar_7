@@ -24,14 +24,12 @@ class Accel():
 
         # determine duration to run based on desired speed and distance
         speed = rospy.get_param('~speed', 2.0)       # meters/sec
-        accel = rospy.get_param('~accel', 20.0)       # meters/sec^2
+        accel = rospy.get_param('~accel', 2.0)       # meters/sec^2
         delta_speed = accel / rate                   # maximum speed increment
         drive_time = 5.0                             # seconds
-        steering_bias = rospy.get_param('~bias', -0.03)
 
         drive_cmd = AckermannDriveStamped()
         drive_cmd.drive.speed = 0.0
-        drive_cmd.drive.steering_angle = steering_bias
         last_speed = 0.0
         
         ticks = int(drive_time * rate) # convert drive time to ticks
