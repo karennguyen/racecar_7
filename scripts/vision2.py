@@ -61,7 +61,7 @@ class ZedCamPub:
 		
 	 	maskRed = cv2.inRange(hsv, np.array([hue_red_min / 2, int(sat_red_min * 255), int(val_red_min * 255)]), np.array([hue_red_max / 2, int(sat_red_max * 255), int(val_red_max * 255)]))
 
-		contours_red, hierarchy_red = cv2.findContours(maskRed1, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+		contours_red, hierarchy_red = cv2.findContours(maskRed, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 		
 
 		try:		
@@ -102,14 +102,14 @@ class ZedCamPub:
 				width = np.size(img, 1)
 							
 				blobD.header = self.header
-				blobD.height = Float64(float(blobSize))
+				blobD.height = Float64(float(h))
 				blobD.location =  float(cx)/float(width)	
 
-				self.loc_size_pub.publish(blobD)
+				self.loc_height_pub.publish(blobD)
 			
-		except Exception, e:
-			print str(e)
-	
+		except Exception:
+			#print str(e)
+			pass
 		return img
 
 if __name__ == "__main__":
