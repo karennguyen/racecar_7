@@ -29,6 +29,8 @@ class Follower():
         self.propelling_charge = 4
         #charge pushing on the car from the laser points
         self.charge = 0.005
+        #use this for small step accerleration
+        self.last_speed=0
         
         '''
         Node setup and start
@@ -89,10 +91,11 @@ class Follower():
             force_x = -self.propelling_charge - force_x
         else:
             force_x = self.propelling_charge - force_x
-                                          
+        
         speed = self.pSpeed * math.sqrt(force_x ** 2 + force_y ** 2) * np.sign(force_x)
-        angle = (self.pAngle * math.atan2(-force_y, force_x) * np.sign(force_x))*-1 #"Makes the equations easier" - Monday Seminar Dude
-                                                 
+        angle = (self.pAngle * math.atan2(-force_y, force_x) * np.sign(force_x))*-1 # "Makes the equations easier" - Russ Tedrake
+        
+        
         return (speed, angle)
         
     '''
@@ -126,11 +129,19 @@ class Follower():
         #Use the potential field to set speed and angle
         else: 
             speed,angle= self.get_driving_info(msg.ranges[180:900])
+    
+        '''
+        Small step acceleration
+        '''
+        #if the sign is the same , the change is large, and the car is near stopped, increase slowly
+        if(abs(speed - self.last_speed)>.2 and abs(self.last_speed)<.5 and np.sign(speed)==np.sign(self.last_speed)):
+            speed = self.last_speed + .5
+        self.last_speed=speed
         
         #Assign speed and angle to the message
         drive_cmd.drive.steering_angle=angle
         drive_cmd.drive.speed=speed
-    
+        
         self.drive.publish(drive_cmd) # post this message
     
     
