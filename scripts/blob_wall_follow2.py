@@ -65,7 +65,7 @@ class Follower():
             drive_cmd.drive.speed = -.1
         else:
             print "Angle is %f" % angle
-            drive_cmd.drive.speed = 0
+            drive_cmd.drive.speed = 1
 
         self.drive.publish(drive_cmd) # post this message
 
@@ -75,8 +75,9 @@ class Follower():
         msg.height   -> float
         msg.location -> float
         '''
-
-        if (msg.height.data > 800 or self.wall):
+	print ("Height: ", msg.height.data , "Location: " ,msg.location.data)
+        if (msg.height.data > 200 or self.wall):
+	    print ("In box")
             self.switch(msg.color)
             return
 

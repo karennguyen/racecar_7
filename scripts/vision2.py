@@ -14,14 +14,12 @@ class ZedCamPub:
 
 		self.bridge = CvBridge()
 
-		self.zed_pub = rsp.Publisher("image_echo", Image, queue_size=10)
-		self.loc_height_pub = rsp.Publisher("blob_info", blob_detect, queue_size=10)
+		self.zed_pub = rsp.Publisher("/image_echo", Image, queue_size=1)
+		self.loc_height_pub = rsp.Publisher("/blob_info", blob_detect, queue_size=1)
 		
 		self.zed_img = rsp.Subscriber("/camera/rgb/image_rect_color", Image, self.detect_img)
 		
 		self.header = std_msgs.msg.Header()
-
-		rsp.init_node("zed_pub")
 		
 	def detect_img(self, img):
 		img_data = self.bridge.imgmsg_to_cv2(img)
@@ -33,7 +31,7 @@ class ZedCamPub:
 
 	def process_img(self, img):
 		blobD = blob_detect()	
-		
+
 		hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
 		
 		#GREEN STUFF
@@ -50,8 +48,8 @@ class ZedCamPub:
 
 		contours_green, hierarchy_green = cv2.findContours(maskGreen, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-		hue_red_min = 0
-		hue_red_max = 30
+		hue_red_min = 200#0
+		hue_red_max = 260#30
 
 		sat_red_min = .666
 		sat_red_max = 1
@@ -63,18 +61,17 @@ class ZedCamPub:
 
 		contours_red, hierarchy_red = cv2.findContours(maskRed, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 		
-
 		try:		
 			if len(contours_green) == 0:
 				contRedArea = [ (cv2.contourArea(c), (c) ) for c in contours_red]
 				contRedArea = sorted(contRedArea, reverse=True, key=lambda x: x[0])
 				officCont = contRedArea[0][1]
-				blobD.color = "red"
+				blobD.color.data = "red"
 			elif len(contours_red) == 0:
 				contGreenArea = [ (cv2.contourArea(c), (c) ) for c in contours_green]
 				contGreenArea = sorted(contGreenArea, reverse=True, key=lambda x: x[0])
 				officCont = contGreenArea[0][1]
-				blobD.color = "green"
+				blobD.color.data = "green"
 			else:
 				contGreenArea = [ (cv2.contourArea(c), (c) ) for c in contours_green]
 				contGreenArea = sorted(contGreenArea, reverse=True, key=lambda x: x[0])
@@ -82,10 +79,10 @@ class ZedCamPub:
 				contRedArea = sorted(contRedArea, reverse=True, key=lambda x: x[0])
 				if( max(contGreenArea[0][0], contRedArea[0][0]) == contGreenArea[0][0]):
 					officCont = contGreenArea[0][1]
-					blobD.color = "green"
+					blobD.color.data = "green"
 				else:
 					officCont = contRedArea[0][1]
-					blobD.color = "red"
+					blobD.color.data = "red"
 
 			cv2.drawContours(img, officCont, -1, (120, 0, 0), 4)
 			MGr = cv2.moments(officCont)
@@ -103,15 +100,18 @@ class ZedCamPub:
 							
 				blobD.header = self.header
 				blobD.height = Float64(float(h))
-				blobD.location =  float(cx)/float(width)	
-
+				blobD.location =  Float64(float(cx)/float(width))
 				self.loc_height_pub.publish(blobD)
+			else:
+				#print "didn't get into the if"
+				pass
 			
-		except Exception:
+		except Exception, e:
 			#print str(e)
 			pass
 		return img
 
 if __name__ == "__main__":
 	node = ZedCamPub()
+	rsp.init_node("zed_pub")
 	rsp.spin()
