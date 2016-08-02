@@ -1,6 +1,6 @@
 <launch>
-	<node name="wall_follow_node" pkg="bwsi_race" args="" type="blob_wall_follow2.py" output="screen"/>
+	<node name="wall_follow_node" pkg="racecar_7" args="" type="blob_wall_follow2.py" output="screen"/>
 	<include file="$(find racecar)/launch/teleop.launch"/>
-	<node name="vision_node" pkg="bwsi_race" args="" type="vision2.py" output="screen"/>
+	<node name="vision_node" pkg="racecar_7" args="" type="vision2.py" output="screen"/>
 	<include file="$(find zed_wrapper)/launch/zed.launch"/>
 </launch>
