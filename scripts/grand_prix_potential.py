@@ -9,7 +9,7 @@ from ackermann_msgs.msg import AckermannDriveStamped # steering messages
 from sensor_msgs.msg import LaserScan # laser scanner msgs
 
 RADIANS_PER_TICK = math.pi / 720
-MAX_SPEED=2.0
+MAX_SPEED = 2.0
 
 class Follower():
     
@@ -42,14 +42,14 @@ class Follower():
             force_x = self.propelling_charge - force_x
                                           
         speed = self.pSpeed * math.sqrt(force_x ** 2 + force_y ** 2) * np.sign(force_x)
-        angle = (self.pAngle * math.atan2(-force_y, force_x) * np.sign(force_x))*-1 #"Makes the equations easier" - Monday Seminar Dude
+        angle = (self.pAngle * math.atan2(-force_y, force_x) * np.sign(force_x))* -1 #"Makes the equations easier" - Monday Seminar Dude
         
         return (max(speed,-1), angle)
         
     '''
     callback for the laser subscriber
     '''
-    def laserCall(self,msg):
+    def laserCall(self, msg):
         
         #create the new message
         drive_cmd = AckermannDriveStamped()
@@ -57,8 +57,8 @@ class Follower():
         speed,angle= self.get_driving_info(msg.ranges[180:900])
         
         #Assign speed and angle to the message
-        drive_cmd.drive.steering_angle=angle
-        drive_cmd.drive.speed=speed
+        drive_cmd.drive.steering_angle = angle
+        drive_cmd.drive.speed = speed
     
         self.drive.publish(drive_cmd) # post this message
       
