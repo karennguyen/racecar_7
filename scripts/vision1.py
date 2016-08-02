@@ -34,8 +34,8 @@ def getPolyName(points):
 def find_polygon(contour, (cx, cy), img):
 	
 	polygon = cv2.approxPolyDP(contour, 0.01*cv2.arcLength(contour, True), True)
-	cv2.polylines(final, np.int32([polygon]), True, (0,0,0),3)#bug in cv2, should have verified dtype
-	cv2.polylines(final, np.int32([polygon]), True, (255,255,255),1)
+	cv2.polylines(img, np.int32([polygon]), True, (0,0,0),3)#bug in cv2, should have verified dtype
+	cv2.polylines(img, np.int32([polygon]), True, (255,255,255),1)
 	poly_name = getPolyName(len(polygon))
 
 	cv2.putText(img, poly_name, (cx,cy), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0),3)
@@ -90,7 +90,7 @@ class BlobDetection:
 		self.zed_pub.publish(processed_img)
 
 	def process_img(self, img):
-		hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV) #converting to HSV
+		hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV) #converting to HSV
 		
 		#GREEN
 		hue_green_min = 100
@@ -180,6 +180,7 @@ class BlobDetection:
 					      		cv2.putText(img, string_list[i], center, font, 1,(0,0,0) , 4)
 
 							blobShape = find_polygon(cont, center, img)
+							print blobShape
 							self.blob_msg.shape = blobShape
 		                
 		except Exception, e:
