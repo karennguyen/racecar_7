@@ -56,7 +56,7 @@ class BlobDetection:
 		self.zed_pub.publish(processed_img)
 
 	def process_img(self, img):
-		hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV) #converting to HSV
+		hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV) #converting to HSV
 		
 		#GREEN
 		hue_green_min = 100
