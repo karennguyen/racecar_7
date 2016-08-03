@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # general imports for all python nodes
+#WALL FOLLOW IMPLEMENTATION
 import rospy
 import math
 import numpy as np
