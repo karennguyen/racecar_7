@@ -86,8 +86,8 @@ class ColorPub():
                 officCont = contRedArea[0][1]
                 color = "red"
 
-	x, y, w, h = cv2.boundingRect(officCont)
-	if h > self.heightThresh:
+	x, y, w, h = cv2.boundingRect(cont)
+	if h > heightThresh:
             return color
 	else:
 	    return "nothing"

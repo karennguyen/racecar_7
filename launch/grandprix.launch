@@ -1,5 +1,5 @@
 <launch>
-	<node name = "grand_prix_free_space" pkg = "racecar_7" args= "" type ="grand_prix_free_space.py" output= "screen"/>
-	<!--<node name = "grand_prix_potential" pkg = "racecar_7" args= "" type ="grand_prix_potential.py" output= "screen"/>-->
+	<!--<node name = "grand_prix_free_space" pkg = "racecar_7" args= "" type ="grand_prix_free_space.py" output= "screen"/>-->
+	<node name = "explorer" pkg = "racecar_7" args="" type="grand_prix_avoid.py" output="screen"/>
 	<include file="$(find racecar)/launch/teleop.launch"/>
 </launch>

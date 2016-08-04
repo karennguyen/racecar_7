@@ -8,7 +8,7 @@ import numpy as np
 from ackermann_msgs.msg import AckermannDriveStamped # steering messages
 from sensor_msgs.msg import LaserScan # laser scanner msgs
 
-MAX_SPEED = 2.0
+MAX_SPEED = 3.0
 
 class Follower():
     
@@ -30,9 +30,10 @@ class Follower():
                     i += 1
                     if(i>=len(L)):
                         break
-                    if(count > largestSpace):
-                        largestSpace = count
-                        center = (count / 2) + i
+                if(count > largestSpace):
+                    largestSpace = count
+                    center = i-(count / 2)
+	rospy.loginfo ("Center: %i" %  center)
         return center # a point out of 1081
         
         
@@ -44,8 +45,8 @@ class Follower():
         #create the new message
         drive_cmd = AckermannDriveStamped()
         
-        drive_cmd.drive.steering_angle = (540-self.findLargestSpace(msg.ranges, 2)) /200
-        
+        drive_cmd.drive.steering_angle = (540-self.findLargestSpace(msg.ranges, 3)) /400.0 
+        rospy.loginfo ("steering: %f" % drive_cmd.drive.steering_angle)
         drive_cmd.drive.speed = MAX_SPEED
     
         self.drive.publish(drive_cmd) # post this message
@@ -61,15 +62,17 @@ class Follower():
         '''
         Node setup and start
         '''
-        rospy.init_node('grand_prix', anonymous = False)
+       
         self.drive = rospy.Publisher('/vesc/ackermann_cmd_mux/input/navigation', AckermannDriveStamped, queue_size=5)
         rospy.Subscriber('scan', LaserScan, self.laserCall)
         
         '''
         Leave the robot going until roscore dies, then set speed to 0
         '''
-        rospy.spin()
+        
         self.drive.publish(AckermannDriveStamped())
         
 if __name__=="__main__":
-    Follower(True)
+    rospy.init_node('grand_prix', anonymous = False)
+    node = Follower()
+    rospy.spin()

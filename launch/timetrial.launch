@@ -1,6 +1,6 @@
 <launch>
 	<node name="color_node" pkg="racecar_7" args="" type="time_trial_vision.py" output="screen"/>
-	<node name = "time_trial_driver" pkg = "racecar_7" args= "" type ="time_trial_driver.py" output= "screen"/>
+	<node name = "time_trial_driver" pkg = "racecar_7" args= "" type ="time_trial_driver_follower.py" output= "screen"/>
 	<include file="$(find racecar)/launch/teleop.launch"/>
 	<include file="$(find zed_wrapper)/launch/zed.launch"/>
 </launch>

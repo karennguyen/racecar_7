@@ -5,43 +5,10 @@ from std_msgs.msg import *
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point
 from cv_bridge import CvBridge, CvBridgeError
-from racecar_7.msg import img_info
+from bwsi_race.msg import img_info
 import cv2
 import numpy as np
 import math
-
-def getPolyName(points):
-	p = int(points)
-	if(p<=0):
-		return "No Points"
-	elif(p==1):
-		return "One Point"
-	elif(p==2):
-		return "Line"
-	elif(p==3):
-		return "Triangle"
-	elif(p==4):
-		return "Rectangle"
-	elif(5<=p<=11):
-		return "Polygon"
-	elif(p==12):
-		return "Cross"
-	elif(p>12):
-		return "Circle"
-	else:
-		return "Unknown Shape"
-
-def find_polygon(contour, (cx, cy), img):
-	
-	polygon = cv2.approxPolyDP(contour, 0.01*cv2.arcLength(contour, True), True)
-	cv2.polylines(img, np.int32([polygon]), True, (0,0,0),3)#bug in cv2, should have verified dtype
-	cv2.polylines(img, np.int32([polygon]), True, (255,255,255),1)
-	poly_name = getPolyName(len(polygon))
-
-	cv2.putText(img, poly_name, (cx,cy), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0),3)
-	cv2.putText(img, poly_name, (cx,cy), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),1)
-
-	return poly_name
 
 class BlobDetection:
 
@@ -58,9 +25,9 @@ class BlobDetection:
 		self.gone_far_enough = True
 
 		self.header = std_msgs.msg.Header()
-		self.heightThresh = 100 #unit pixels MUST TWEAK
+		self.heightThresh = 75 #unit pixels MUST TWEAK
 		self.odomThresh = 1 #unit meters
-		
+		self.blob_msg = img_info()
 
 		rsp.init_node("vision_node")
     
@@ -76,7 +43,6 @@ class BlobDetection:
 	def detect_img(self, img): #image callback
 		if(not self.gone_far_enough):
 			return
-		self.blob_msg = img_info()
 		self.blob_msg.header = self.header
 
 		img_data = self.bridge.imgmsg_to_cv2(img) #changing image to cv2
@@ -99,7 +65,7 @@ class BlobDetection:
 		sat_green_min = .4
 		sat_green_max = 1
 
-		val_green_min = .4
+		val_green_min = .15
 		val_green_max = 1
 
 		green_bounds = np.array([hue_green_min / 2, int(sat_green_min * 255), int(val_green_min * 255)]), np.array([hue_green_max / 2, int(sat_green_max * 255), int(val_green_max * 255)])
@@ -111,10 +77,10 @@ class BlobDetection:
 		hue_red_min = 0
 		hue_red_max = 30
 
-		sat_red_min = .666
+		sat_red_min = .5
 		sat_red_max = 1
 
-		val_red_min = .79
+		val_red_min = 0.3
 		val_red_max = 1
 		
 		red_bounds = np.array([hue_red_min / 2, int(sat_red_min * 255), int(val_red_min * 255)]), np.array([hue_red_max / 2, int(sat_red_max * 255), int(val_red_max * 255)])
@@ -123,13 +89,13 @@ class BlobDetection:
 		contours_red, hierarchy_red = cv2.findContours(maskRed, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 		
 		#YELLOW
-		hue_yellow_min = 50
-		hue_yellow_max = 130
+		hue_yellow_min = 40
+		hue_yellow_max = 90
 
-		sat_yellow_min = 0.25
+		sat_yellow_min = 0.4
 		sat_yellow_max = 1
 
-		val_yellow_min = .6666
+		val_yellow_min = 0.25
 		val_yellow_max = 1
                                        
 		yellow_bounds = np.array([hue_yellow_min / 2, int(sat_yellow_min * 255), int(val_yellow_min * 255)]), np.array([hue_yellow_max / 2, int(sat_yellow_max * 255), int(val_yellow_max * 255)])
@@ -152,7 +118,6 @@ class BlobDetection:
 	 	maskBlue = cv2.inRange(hsv, blue_bounds[0], blue_bounds[1])
 		contours_blue, hierarchy_blue = cv2.findContours(maskBlue, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     		contour_list = [contours_red, contours_green, contours_yellow, contours_blue]
-		
     		string_list = ["red", "green", "yellow", "blue"]
                              
 		try:
@@ -168,6 +133,7 @@ class BlobDetection:
 				  	if  h > self.heightThresh: #comparing height of contour to height threshold param
 						print (string_list[i] , "found")
 				    		self.blob_msg.color = string_list[i] #setting the color field in the custom message type blob_msg
+				    		self.blob_msg.shape = "other" # change??
 				    		cv2.drawContours(img, cont, -1, (255, 255, 255), 10) 
 		
 						if M['m00'] != 0:
@@ -178,10 +144,6 @@ class BlobDetection:
 					      		cv2.rectangle(img, (x, y), (x + w, y + h), (100, 50, 50), 2)
 					      		font = cv2.FONT_HERSHEY_SIMPLEX
 					      		cv2.putText(img, string_list[i], center, font, 1,(0,0,0) , 4)
-
-							blobShape = find_polygon(cont, center, img)
-							print blobShape
-							self.blob_msg.shape = blobShape
 		                
 		except Exception, e:
 			print str(e)
